@@ -1,0 +1,244 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+}
+
+body {
+    /* display: flex;
+    align-items: center;
+    justify-content: center; */
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.login-page {
+    /* position: relative; */
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+
+
+}
+
+
+.header-container {
+    padding: 1rem;
+}
+.acct-logo {
+    /* width: clamp(130px, 17vw, 230px); */
+    width: 16vw;
+  
+    height: auto; 
+    margin-right: 10px; /* keeps aspect ratio */
+}
+
+
+/* First line: "AcctAbility – Automate the Boring." */
+.brand-title {
+    font-size: clamp(2.5rem, 3.5vw, 3rem); /* responsive */
+    font-weight: 600;
+    
+    line-height: 1.2;
+}
+
+.tagline {
+    font-size: clamp(1.5rem, 2.2vw, 2rem); /* responsive */
+    color: #fee600;
+    margin-left: 0.25rem; /* a tiny space after "AcctAbility" */
+}
+
+/* Second line: "Amplify the Smart." */
+.amplify-line {
+    font-size: clamp(1.8rem, 2.8vw, 2.2rem); /* responsive */
+    font-weight: 500;
+    color: #fee600;
+    font-size: clamp(1.8rem, 2.8vw, 2.2rem);
+    /* margin-top: 10px; */
+    padding: 0;
+}
+
+
+
+.amp-line {
+    font-size: clamp(1.5rem, 2.5vw, 2.5rem); /* responsive */
+    font-weight: 600;
+    color: white;
+    line-height: 1.5;
+    margin-top: 10px;
+    padding: 0;
+    width: 100%;
+    margin-left: 10vw;
+}
+.right-part{
+    background-color: rgb(232, 230, 230);
+}
+/* Reset & base */
+
+
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+    padding: 1rem; /* reduce padding */
+    box-sizing: border-box;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* keeps content inside */
+    
+    max-height: 97vh; /* keeps the box from going out of screen */
+    
+    overflow: hidden; /* prevents overflow */
+    
+}
+
+
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.form-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.8rem;
+}
+
+.separator {
+    width: 100%;
+    height: 2px;
+    background: #005899;
+    margin-bottom: 1rem;
+}
+
+.login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    flex-grow: 1;
+}
+
+input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+input:focus {
+    border-color: #005899;
+    outline: none;
+}
+
+.forgot-password-link {
+    align-self: flex-end;
+    font-size: 0.9rem;
+    color: #666;
+    text-decoration: none;
+    /* margin-top: 0.5rem; */
+    transition: color 0.3s ease;
+}
+
+.forgot-password-link:hover {
+    color: #005899;
+}
+
+.login-button {
+    width: 100%;
+    color: white;
+    padding: 0.75rem;
+    background: #005899;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.login-button:hover {
+    background: #026db9;
+}
+
+.signup-prompt,
+.license-agreement {
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.signup-link,
+.license-link {
+    color: #d7c207;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.signup-link:hover,
+.license-link:hover {
+    color: #e5d100;
+}
+
+.footer {
+    margin-top: 0.8rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #999;
+}
+
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .modal-content input {
+    
+    padding: 10px;
+    width: 100%;
+  }
+  
+  .modal-content button {
+   
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+  }
+  

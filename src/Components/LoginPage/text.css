@@ -1,0 +1,52 @@
+/* Text Carousel Styling */
+.modules-list {
+    
+    
+   
+    background-color: #858585; /* Semi-transparent background */
+    
+    color: white;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    background: #005899;
+    margin-left: 5vw;
+
+  }
+  
+ /* Module styling */
+.module {
+  padding: 2px;
+}
+
+
+/* Module title styling */
+.module-title {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: white; /* Yellow color matching your design */
+  margin:4px 0px;
+  /* text-align: center; */
+  
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .modules-list {
+    width: 90%;
+    top: 500px; /* Adjust position for mobile screens */
+  }
+  
+  .module-title {
+    font-size: 1.3rem;
+  }
+}
+.bullet-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #fee600;
+  border-radius: 50%;
+}
