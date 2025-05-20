@@ -4,13 +4,19 @@ import { Link, useNavigate } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import PersonIcon from '@mui/icons-material/Person';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import NotesIcon from '@mui/icons-material/Notes';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 import { collection, addDoc, setDoc, doc, getDoc } from "firebase/firestore";
 import { db, rtdb } from "../Firebase/firebase"; 
 
 
 import { get, ref , runTransaction} from "firebase/database";
+import { MenuItem, TextField } from "@mui/material";
 
 function VendorForm() {
   const navigate = useNavigate();
@@ -25,6 +31,7 @@ function VendorForm() {
     reset,
     getValues,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -43,6 +50,7 @@ function VendorForm() {
       ifsc: "",
       nature: "",
       paymentTerms: "",
+      type:"",
       
       address: "",
       city: "",
@@ -71,6 +79,12 @@ function VendorForm() {
     
     //     fetchVendorCode();
     //   }, [setValue]);
+
+    const VendorType = watch("type");
+    const pan = watch("pan");
+const aadhar = watch("aadhar");
+const gstin = watch("gstin");
+
     const handleSnackbarClose = (event, reason) => {
       if (reason === 'clickaway') return;
       setSnackbarOpen(false);
@@ -79,27 +93,38 @@ function VendorForm() {
  
    const onSubmit = async (data) => {
      try {
-       // Add data to Firestore under 'customers' collection
-       // await setDoc(collection(db, "masters/ONBOARDING/CUSTOMER",data.code.toString()), data);
-        // Create a document reference under 'masters/ONBOARDING/CUSTOMER' with document id as data.code
-   const docRef = doc(db, "masters/ONBOARDING/VENDOR", data.gstin.toUpperCase());  // Use PAN as ID
-    // 1️⃣ Increment Realtime DB sequence number
-      //  const lastNumberRef = ref(rtdb, 'lastVendorNumber');
-      //  await runTransaction(lastNumberRef, (currentValue) => {
-      //    const newBookingNumber = (currentValue || 0) + 1;
-      //    console.log(`Vendor code ${newBookingNumber} reserved!`);
-      //    return newBookingNumber;  // Increments in RTDB
-      //  });
-   // Set the data
+       let documentNumber = "";
+
+  if (data.type === "B2B") {
+    if (!data.gstin?.trim()) {
+      setSnackbarMessage("GSTIN is required for B2B vendors.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+    documentNumber = data.gstin.trim();
+  } else if (data.type === "B2C") {
+    if (!data.pan?.trim()) {
+      setSnackbarMessage("PAN is required for B2C vendors.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+    documentNumber = data.pan.trim();
+  }
+  const vendorData = {
+    ...data,
+    documentNumber,
+  };
+   const docRef = doc(db, `masters/ONBOARDING/VENDOR/${documentNumber}`); 
+   
 
     // 1️⃣ Check if document already exists
          const existingDoc = await getDoc(docRef);
      
          if (existingDoc.exists()) {
-           // console.warn(`Customer with PAN ${data.pan.toUpperCase()} already exists:`, existingDoc.data());
            
-           // alert(`A customer with PAN ${data.pan.toUpperCase()} already exists! Cannot add duplicate.`);
-           setSnackbarMessage(`A Vendor with PAN ${data.gstin.toUpperCase()} already exists!`);
+           setSnackbarMessage(`Vendor already exists!`);
    setSnackbarSeverity("error");
    setSnackbarOpen(true);
    
@@ -131,332 +156,344 @@ function VendorForm() {
   };
 
   return (
-    <div className="form-container bg-white mt-2 w-[70vw] p-6 flex flex-col justify-center items-center text-sm rounded shadow gap-2">
-      <div className="flex items-center justify-between w-[95%] mb-4 mt-4 h-20">
-        <div className="flex flex-col items-start justify-center w-[95%] mb-4 mt-4">
-          <h2 className="text-xl font-semibold">Vendor Onboarding</h2>
-          <p className="text-gray-600">Enter vendor details to onboard them.</p>
+    <div className="form-container bg-white  w-[70vw] flex flex-col justify-center items-center text-sm rounded-xl shadow gap-2 h-[85vh]" >
+      <div className="flex items-center justify-between w-full   h-20 bg-[#0b80d3] rounded-t-xl" style={{padding:'10px 22px'}}>
+        <div className="flex flex-col items-start justify-center w-[95%]   ">
+          <h2 className="text-2xl font-semibold text-white">Vendor Onboarding</h2>
+          <p className="text-black text-lg">Enter vendor details to onboard them.</p>
         </div>
-        <Link to="/OnboardingVendor" className="bg-red-500 text-white p-2">
+        <Link to="/OnboardingVendor" className="bg-red-500 text-white ">
           <button>
             <CloseIcon />
           </button>
         </Link>
       </div>
-
+    
       {/* FORM */}
-      <form onSubmit={handleSubmit(onSubmit)} className="w-[95%] space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4 overflow-y-auto" style={{padding:'0px 20px'}}>
+  {/* VENDOR DETAILS */}
+  <div style={{ padding: '10px' }} className="border border-gray-300 shadow-md rounded-xl">
+    <h2 className="text-xl font-semibold h-8 flex justify-start items-start">Vendor Details&nbsp; <BusinessCenterIcon/></h2>
+    <div className="grid grid-cols-3 gap-3">
+      <TextField
+        label="Vendor Type"
+        variant="outlined"
+        size="small"
+        select
+        fullWidth
+        defaultValue=""
+        {...register("type", { required: true })}
+        error={!!errors.type}
+        helperText={errors.type ? "Vendor Type is required" : ""}
+      >
+        <MenuItem value="B2B">B2B</MenuItem>
+        <MenuItem value="B2C">B2C</MenuItem>
+      </TextField>
 
-        {/* PAN/TAN/GST */}
-        <div className="flex justify-between items-center gap-4 " style={{marginBottom:'10px'}}>
-{/* PAN */}
-<div className="flex-1 min-w-[200px]">
-  <label className="block mb-1">
-    PAN 
-  </label>
-  <div className="flex items-center gap-2">
-    <input
-      className="border rounded px-2 py-1 flex-1"
-      placeholder="Enter PAN"
-      {...register("pan")}
-    />
-    <button
-      type="button"
-      className="bg-blue-500 text-white px-3 py-1 rounded h-10 w-18"
-      onClick={() => handleValidate("pan")}
-      disabled={validatingField === "pan"}
-    >
-      {validatingField === "pan" ? "Validating..." : "Validate"}
-    </button>
+      <TextField
+        label="Business Type"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter Business Type"
+        {...register("vendorType", { required: true })}
+        error={!!errors.vendorType}
+        helperText={errors.vendorType ? "Business Type is required" : ""}
+      />
+
+      <TextField
+        label="Nature of Business"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter Nature of Business"
+        {...register("nature")}
+      />
+
+      <TextField
+        label="Payment Terms"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter Payment Terms"
+        {...register("paymentTerms")}
+      />
+    </div>
   </div>
-  {errors.pan && (
-    <span className="text-red-500 text-xs">{errors.pan.message}</span>
-  )}
-</div>
 
- {/* TAN */}
- <div className="flex-1 min-w-[200px]">
-            <label className="block mb-1">TAN</label>
-            <div className="flex items-center gap-2">
-              <input
-                className="border rounded px-2 py-1 flex-1"
-                placeholder="Enter TAN"
-                {...register("tan")}
-              />
-              <button
-                type="button"
-                className="bg-blue-500 text-white px-3 py-1 rounded h-10 w-18"
-                onClick={() => handleValidate("tan")}
-                disabled={validatingField === "tan"}
-              >
-                {validatingField === "tan" ? "Validating..." : "Validate"}
-              </button>
-            </div>
-            {errors.tan && (
-              <span className="text-red-500 text-xs">{errors.tan.message}</span>
-              
-            )}
-          </div>
+  {/* CONTACT DETAILS */}
+  <div style={{ padding: '10px', marginTop: '1.2rem' }} className="border border-gray-300 shadow-md rounded-xl">
+    <h2 className="text-xl font-semibold h-8 flex justify-start items-start">Contact Details &nbsp; <PersonIcon/></h2>
+    <div className="grid grid-cols-3 gap-3">
+      <TextField
+        label="Contact Name"
+        variant="outlined"
+        size="small"
+        fullWidth
+        {...register("contactName", { required: true })}
+        error={!!errors.name}
+        helperText={errors.name ? "Contact Name is required" : ""}
+      />
 
-          {/* GSTIN */}
-          <div className="flex-1 min-w-[200px]">
-            <label className="block mb-1">GSTIN<span className="text-red-500">*</span></label>
-            <div className="flex items-center gap-2">
-              <input
-                className="border rounded px-2 py-1 flex-1"
-                placeholder="Enter GSTIN"
-                {...register("gstin", { required: true })}
-              />
-              <button
-                type="button"
-                className="bg-blue-500 text-white px-3 py-1 rounded h-10 w-18"
-                onClick={() => handleValidate("gstin")}
-                disabled={validatingField === "gstin"}
-              >
-                {validatingField === "gstin" ? "Validating..." : "Validate"}
-              </button>
-            </div>
-            {errors.gstin && (
-              // <span className="text-red-500 text-xs">{errors.gstin.message}</span>
-              <span className="text-red-500 text-xs">GSTIN is required</span>
+      <TextField
+        label="Contact Email"
+        variant="outlined"
+        size="small"
+        fullWidth
+        type="email"
+        placeholder="Enter Email"
+        {...register("contactEmail", { required: true })}
+        error={!!errors.contactEmail}
+        helperText={errors.contactEmail ? "Email is required" : ""}
+      />
 
-            )}
-          </div>
-        </div>
+      <TextField
+        label="Contact Phone"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter Phone"
+        {...register("contactPhone", { required: true })}
+        error={!!errors.contactPhone}
+        helperText={errors.contactPhone ? "Phone is required" : ""}
+      />
+    </div>
+  </div>
 
-        {/* GRID DETAILS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-         
+  {/* ADDRESS DETAILS */}
+  <div style={{ padding: '10px', marginTop: '1.2rem' }} className="border border-gray-300 shadow-md rounded-xl">
+    <h2 className="text-xl font-semibold h-8 flex justify-start items-start">Address Details &nbsp;<LocationOnIcon/></h2>
+    <div className="grid grid-cols-3 gap-3">
+      <TextField
+        label="Address"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter Address"
+        {...register("address")}
+      />
+      <TextField
+        label="City"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter City"
+        {...register("city")}
+      />
+      <TextField
+        label="State"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter State"
+        {...register("state")}
+      />
+      <TextField
+        label="Country"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter Country"
+        {...register("country")}
+      />
+      <TextField
+        label="Pincode"
+        type="number"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter Pincode"
+        {...register("pincode")}
+      />
+    </div>
+  </div>
 
-          {/* Name */}
-<div>
-  <label className="block mb-1">
-    Contact Name <span className="text-red-500">*</span>
-  </label>
-  <input
-    className="border rounded px-2 py-1 w-full"
-    placeholder="Enter Contact Name"
-    {...register("contactName", { required: true })}
-  />
-  {errors.contactName && (
-    <span className="text-red-500 text-xs">Contact name is required</span>
-  )}
-</div>
+  {/* BANK DETAILS */}
+  <div style={{ padding: '10px', marginTop: '1.2rem' }} className="border border-gray-300 shadow-md rounded-xl">
+    <h2 className="text-xl font-semibold h-8 flex justify-start items-start">Bank Details &nbsp;<CreditCardIcon/></h2>
+    <div className="grid grid-cols-3 gap-3">
+      <TextField
+        label="Bank Name"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter Bank Name"
+        {...register("bankName")}
+      />
+      <TextField
+        label="Bank Branch"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter Bank Branch"
+        {...register("bankBranch")}
+      />
+      <TextField
+        label="Bank Account No"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter Bank Account Number"
+        {...register("bankAccountNo")}
+      />
+      <TextField
+        label="IFSC Code"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter IFSC Code"
+        {...register("ifsc")}
+      />
+    </div>
+  </div>
 
-          
-<div>
-  <label className="block mb-1">
-    Vendor Type <span className="text-red-500">*</span>
-  </label>
-  <input
-    className="border rounded px-2 py-1 w-full"
-    placeholder="Enter Type"
-    {...register("vendorType", { required: true })}
-  />
-  {errors.vendorType && (
-    <span className="text-red-500 text-xs">Vendor Type is required</span>
-  )}
-</div>
+  {/* STATUTORY & FINANCIAL INFORMATION */}
+  <div style={{ padding: '10px', marginTop: '1.2rem' }} className="border border-gray-300 shadow-md rounded-xl">
+    <h2 className="text-xl font-semibold h-8 flex justify-start items-start">Statutory & Financial Information &nbsp;<AccountBalanceIcon/></h2>
 
-          {/* Email */}
-<div>
-  <label className="block mb-1">
-    Contact Email <span className="text-red-500">*</span>
-  </label>
-  <input
-    type="email"
-    className="border rounded px-2 py-1 w-full"
-    placeholder="Enter Email"
-    {...register("contactEmail", { required: true })}
-  />
-  {errors.contactEmail && (
-    <span className="text-red-500 text-xs">Email is required</span>
-  )}
-</div>
+    {/* PAN, TAN, GSTIN */}
+    <div className="grid grid-cols-3 gap-4">
+      <div className="flex gap-2" style={{marginBottom:'12px'}}>
+        <TextField
+          label="PAN"
+          variant="outlined"
+          size="small"
+          fullWidth
+          placeholder="Enter PAN"
+          {...register("pan")}
+          error={!!errors.pan}
+          helperText={errors.pan ? "PAN is required" : ""}
+        />
+        <button
+          type="button"
+          className="bg-blue-500 text-white   rounded h-10 w-18 "
+          onClick={() => handleValidate("pan")}
+          disabled={validatingField === "pan"}
+        >
+          {validatingField === "pan" ? "Validating..." : "Validate"}
+        </button>
+      </div>
 
-          
-{/* Phone */}
-<div>
-  <label className="block mb-1">
-    Contact Phone <span className="text-red-500">*</span>
-  </label>
-  <input
-    className="border rounded px-2 py-1 w-full"
-    placeholder="Enter Phone"
-    {...register("contactPhone", { required: true })}
-  />
-  {errors.contactPhone && (
-    <span className="text-red-500 text-xs">Phone is required</span>
-  )}
-</div>
+      <div className="flex gap-2">
+        <TextField
+          label="TAN"
+          variant="outlined"
+          size="small"
+          fullWidth
+          placeholder="Enter TAN"
+          {...register("tan")}
+          error={!!errors.tan}
+          helperText={errors.tan?.message}
+        />
+        <button
+          type="button"
+          className="bg-blue-500 text-white   rounded h-10 w-18 "
+          onClick={() => handleValidate("tan")}
+          disabled={validatingField === "tan"}
+        >
+          {validatingField === "tan" ? "Validating..." : "Validate"}
+        </button>
+      </div>
 
-          <div>
-            <label>Address</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("address")}
-              placeholder="Enter Address"
-            />
-          </div>
+      <div className="flex gap-2">
+        <TextField
+          label="GSTIN"
+          variant="outlined"
+          size="small"
+          fullWidth
+          placeholder="Enter GSTIN"
+          {...register("gstin")}
+          error={!!errors.gstin}
+          helperText={errors.gstin?.message}
+        />
+        <button
+          type="button"
+          className="bg-blue-500 text-white   rounded h-10 w-18 "
+          onClick={() => handleValidate("gstin")}
+          disabled={validatingField === "gstin"}
+        >
+          {validatingField === "gstin" ? "Validating..." : "Validate"}
+        </button>
+      </div>
+    </div>
 
-          <div>
-            <label>City</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("city")}
-              placeholder="Enter City"
-            />
-          </div>
+    {/* Turnover, TDS, TCS */}
+    <div className="grid grid-cols-3 gap-4 ">
+      <TextField
+        label="Turnover"
+        variant="outlined"
+        size="small"
+        type="number"
+        fullWidth
+        placeholder="Enter Turnover"
+        {...register("turnover", { valueAsNumber: true })}
+      />
 
-          <div>
-            <label>State</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("state")}
-              placeholder="Enter State"
-            />
-          </div>
+      <TextField
+        label="TDS"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter TDS"
+        {...register("tds")}
+      />
 
-          <div>
-            <label>Country</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("country")}
-              placeholder="Enter Country"
-            />
-          </div>
+      <TextField
+        label="TCS"
+        variant="outlined"
+        size="small"
+        fullWidth
+        placeholder="Enter TCS"
+        {...register("tcs")}
+      />
+    </div>
+  </div>
 
-          <div>
-            <label>Pincode</label>
-            <input
-              type="number"
-              className="border rounded px-2 py-1 w-full"
-              {...register("pincode")}
-              placeholder="Enter Pincode"
-            />
-          </div>
-
-          <div>
-            <label>Turnover</label>
-            <input
-              type="number"
-              className="border rounded px-2 py-1 w-full"
-              {...register("turnover")}
-              placeholder="Enter Turnover"
-            />
-          </div>
-
-          <div>
-            <label>TDS</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("tds")}
-              placeholder="Enter TDS"
-            />
-          </div>
-
-          <div>
-            <label>TCS</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("tcs")}
-              placeholder="Enter TCS"
-            />
-          </div>
-
-          {/* CHECKBOXES */}
-          <div className="border rounded-md p-4 flex items-center" style={{padding:'12px'}}>
+  {/* ADDITIONAL INFORMATION */}
+  <div style={{padding:'10px',marginTop:'1.2rem'}} className="border  border-gray-300 shadow-md rounded-xl">
+           <h2 className="text-xl font-semibold  h-8 flex justify-start items-start">Additional Information &nbsp; <NotesIcon/></h2>
+           <div className="grid grid-cols-2 gap-4" >
+            {/* CHECKBOXES */}
+          <div className="border rounded-md  flex items-center" style={{padding:'12px'}}>
             <input
               type="checkbox"
-              className="h-6 mr-2"
+              className="h-6 "
               {...register("msme")}
               style={{display:'inline-block',width:'10%'}}
             />
             <label style={{width:'90%'}}>MSME Registered</label>
           </div>
 
-          <div className="border rounded-md p-4 flex items-center">
+          <div className="border rounded-md  flex items-center">
             <input
               type="checkbox"
-              className="h-6 mr-2"
+              className="h-6 "
               {...register("eInvoice")}
               style={{display:'inline-block',width:'10%'}}
             />
             <label style={{width:'90%'}}>E-Invoice Applicable</label>
           </div>
 
-          {/* BANK DETAILS */}
-          <div>
-            <label>Bank Name</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("bankName")}
-              placeholder="Enter Bank Name"
-            />
-          </div>
+          
+        
 
-          <div>
-            <label>Bank Branch</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("bankBranch")}
-              placeholder="Enter Bank Branch"
-            />
+           </div>
           </div>
+          
 
-          <div>
-            <label>Bank Account No</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("bankAccountNo")}
-              placeholder="Enter Bank Account Number"
-            />
-          </div>
 
-          <div>
-            <label>IFSC Code</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("ifsc")}
-              placeholder="Enter IFSC Code"
-            />
-          </div>
 
-          <div>
-            <label>Nature of Business</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("nature")}
-              placeholder="Enter Nature of Business"
-            />
-          </div>
+  {/* BUTTONS */}
+  <div className="flex justify-end items-center gap-4  h-20">
+    <button type="button" className="bg-gray-300   rounded hover:bg-gray-400 h-10 w-30">
+      Save as Draft
+    </button>
+    <button type="submit" className="bg-green-500 text-white   rounded hover:bg-green-600 h-10 w-30">
+      Submit
+    </button>
+  </div>
+</form>
 
-          <div>
-            <label>Payment Terms</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              {...register("paymentTerms")}
-              placeholder="Enter Payment Terms"
-            />
-          </div>
-        </div>
-
-        {/* BUTTONS */}
-        <div className="flex justify-end items-center gap-4 mt-4 h-20">
-          <button
-            type="button"
-            className="bg-gray-300 px-8 py-4 rounded hover:bg-gray-400 h-10 w-30"
-          >
-            Save as Draft
-          </button>
-          <button
-            type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 h-10 w-30"
-          >
-            Submit
-          </button>
-        </div>
-      </form>
          <Snackbar 
         open={snackbarOpen} 
         autoHideDuration={4000} 

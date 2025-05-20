@@ -17,6 +17,7 @@ import PaymentRecon from './Components/PaymentRecon.jsx'
 import { BookingInvoices } from './Components/BookingInvoices.jsx'
 import { VendorTable } from './Components/VendorTable.jsx'
 import PaymentAdvisoryForm from './Components/PaymentAdvisoryForm.jsx'
+import InvoicePaymentsForm from './Components/InvoicePaymentsForm.jsx'
 const router=createBrowserRouter([
   {
     path:'/',
@@ -59,6 +60,10 @@ const router=createBrowserRouter([
       },{
         path:'paymentadvisory',
         element:<PaymentAdvisoryForm/>
+      },
+      {
+        path:'invoicepayments',
+        element:<InvoicePaymentsForm/>
       }
     ]
   }

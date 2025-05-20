@@ -10,6 +10,7 @@ import { Home, Login } from "@mui/icons-material";
 import { LoginPage } from "./Components/LoginPage/Login";
 import NavTop from "./Components/NavTop";
 import HomePg from "./Components/Dashboard/HomePg";
+import './index.css'
 
 
 

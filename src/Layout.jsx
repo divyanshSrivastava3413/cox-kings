@@ -16,7 +16,7 @@ function Layout() {
       <NavTop />
       
       {/* Main content */}
-      <div style={{ flex: 1, overflow: 'auto', padding: '16px',margin:'auto' }}>
+      <div style={{ flex: 1, padding: '16px',margin:'auto' ,overflowY:'auto'}}>
         <Outlet />
       </div>
     </div>

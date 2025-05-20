@@ -7,7 +7,7 @@ const NavTop = () => {
       display="flex"
       alignItems="center"
       justifyContent="space-between"
-      borderRadius="24px"
+      borderRadius="12px"
       position={{top:'4px'}}
       py={1}
       px={4}
